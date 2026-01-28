@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-full items-center justify-center p-6 bg-gray-50">
+    <div className="flex h-full max-h-screen items-center justify-center p-6 bg-gray-50">
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-xl font-bold text-gray-600">로그인</CardTitle>
@@ -43,13 +43,14 @@ export default function LoginPage() {
         <CardContent>
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">이메일</label>
+              <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">이메일</label>
               <Input
                 id="email"
                 type="email"
                 placeholder="이메일을 입력하세요"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                
               />
             </div>
 

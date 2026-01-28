@@ -6,7 +6,7 @@ export const mockTrips = [
     startDate: "2026-02-01",
     endDate: "2026-02-03",
     location: "제주도",
-    thumbnail: "/images/jeju.jpg",
+    thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTATPvjCjqdcNSZH1Rudc8-9SSmRlABxALcrA&s",
     description: "오름 트래킹과 해안 드라이브",
   },
   {
@@ -15,7 +15,7 @@ export const mockTrips = [
     startDate: "2026-03-10",
     endDate: "2026-03-12",
     location: "부산",
-    thumbnail: "/images/busan.jpg",
+    thumbnail: "https://visitbusan.net/uploadImgs/files/cntnts/20220901104644030",
     description: "해운대, 광안리, 맛집 탐방",
   },
 ];

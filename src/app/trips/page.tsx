@@ -1,12 +1,20 @@
-import AuthGuard from "@/components/AuthGuard";
+import TripCard from "@/components/trips/TripCard";
+import TripsEmpty from "@/components/trips/TripsEmpty";
+import { mockTrips } from "@/data/mockTrips";
 
 export default function TripsPage() {
+  // const trips = mockTrips; // 나중에 Supabase 데이터로 교체
+  const trips: any[] = [];
+
+  if (trips.length === 0) {
+      return <TripsEmpty />;
+  }
+
   return (
-    <AuthGuard>
-      <div className="p-4">
-        <h1 className="text-xl font-bold">내 여행</h1>
-        <p>여행 목록이 여기에 표시됩니다.</p>
-      </div>
-    </AuthGuard>
+    <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2">
+      {trips.map((trip) => (
+        <TripCard key={trip.id} {...trip} />
+      ))}
+    </div>
   );
 }

@@ -7,6 +7,14 @@
 /* shadcn 애니메이션 */
 @import "tw-animate-css";
 
+/* =========================
+   Global Reset
+   ========================= */
+button {
+  cursor: pointer;
+}
+
+
 /* ===== 커스텀 전역 스타일 ===== */
 
 html,
@@ -57,6 +65,8 @@ body {
 
   --border: oklch(0.922 0 0);
 
+  --border-ring: oklch(0.922 0 0);
+
   --input: oklch(0.922 0 0);
 
   --ring: #0084FF;
@@ -86,6 +96,17 @@ body {
   --sidebar-border: oklch(0.922 0 0);
 
   --sidebar-ring: #0084FF;
+
+  --tw-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --tw-duration: 150ms;
+
+  --tw-shadow: 0 0 #dedede00;
+
+  --tw-shadow-color: rgb(0 0 0 / 0);
+
+  --text-base: .8rem;
+
 }
 
 .dark {
@@ -165,3 +186,98 @@ body {
     color: var(--foreground);
   }
 }
+
+@layer utilities {
+  /* ===== Background & Text ===== */
+  .bg-primary {
+    background-color: var(--primary);
+  }
+
+  .text-primary-foreground {
+    color: var(--primary-foreground);
+  }
+
+  .bg-background {
+    background-color: var(--background);
+  }
+
+  .hover\:bg-primary\/90:hover {
+    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+  }
+
+  /* ===== Border (연회색 핵심) ===== */
+  .border-border {
+    border-color: var(--border);
+  }
+
+  .border-input {
+    border-color: var(--input);
+  }
+
+  .border-ring {
+    border-color: var(--ring);
+  }
+
+  /* ===== Ring (focus) ===== */
+  .ring-ring\/50 {
+    --tw-ring-color: color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+
+  .ring-ring {
+    --tw-ring-color: var(--ring);
+  }
+
+  .ring-destructive\/20 {
+    --tw-ring-color: color-mix(in oklch, var(--destructive) 20%, transparent);
+  }
+
+  .ring-destructive\/40 {
+    --tw-ring-color: color-mix(in oklch, var(--destructive) 40%, transparent);
+  }
+
+  /* ===== Text Colors ===== */
+  .text-muted-foreground {
+    color: var(--muted-foreground);
+  }
+
+  .text-foreground {
+    color: var(--foreground);
+  }
+
+  /* ===== Background for Inputs (dark 대응) ===== */
+  .bg-input {
+    background-color: var(--input);
+  }
+
+  /* =========================
+     Transition (shadcn 대응)
+     ========================= */
+  .transition-\[color\,box-shadow\] {
+    transition-property: color, box-shadow;
+    transition-timing-function: var(
+      --tw-ease,
+      cubic-bezier(0.4, 0, 0.2, 1)
+    );
+    transition-duration: var(
+      --tw-duration,
+      150ms
+    );
+  }
+
+  /* =========================
+     Shadow (xs)
+     ========================= */
+  .shadow-xs {
+    --tw-shadow-color: rgb(0 0 0 / 0.05);
+    --tw-shadow:
+      0 1px 2px 0 var(--tw-shadow-color);
+
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000),
+      var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000),
+      var(--tw-shadow);
+  }
+}
+
