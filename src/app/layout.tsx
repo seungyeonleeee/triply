@@ -18,16 +18,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="bg-gray-100">
+      <body className="bg-gray-100 text-gray-900">
         <AuthProvider>
-          <div className="flex min-h-screen">
+          <div className="flex justify-center min-h-screen">
             {/* Left Side */}
             <SideBrand />
 
             {/* Mobile App */}
             <AppFrame>
               <Header />
-              <main className="min-h-[calc(100vh-56px)]">
+              <main className="h-[calc(100vh-57px)]">
                 {children}
               </main>
             </AppFrame>

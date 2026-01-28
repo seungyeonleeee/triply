@@ -4,6 +4,10 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -30,34 +34,51 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)] items-center justify-center p-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow">
-        <h1 className="mb-6 text-xl font-bold">Triply 로그인</h1>
+    <div className="flex h-full items-center justify-center p-6 bg-gray-50">
+      <Card className="w-full max-w-md bg-white">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-xl font-bold text-gray-600">로그인</CardTitle>
+          <CardDescription className="text-gray-500">여행을 더 쉽게! 나만의 여행 플래너를 시작하세요.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium text-gray-700">이메일</label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="이메일을 입력하세요"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-        <input
-          type="email"
-          placeholder="이메일"
-          className="mb-3 w-full rounded border px-3 py-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-sm font-medium text-gray-700">비밀번호</label>
+                <a href="#" className="text-xs text-[#0084FF] hover:underline">
+                  비밀번호를 잊으셨나요?
+                </a>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-        <input
-          type="password"
-          placeholder="비밀번호"
-          className="mb-6 w-full rounded border px-3 py-2"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full rounded bg-blue-600 py-2 text-white disabled:opacity-50"
-        >
-          {loading ? "로그인 중..." : "로그인"}
-        </button>
-      </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full text-base p-5"
+            >
+              {loading ? "로그인 중..." : "로그인"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

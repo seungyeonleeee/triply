@@ -16,7 +16,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b bg-white">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="text-lg font-bold">
+        <Link href="/" className="text-lg font-bold text-primary">
           Triply
         </Link>
 
