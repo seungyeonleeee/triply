@@ -193,6 +193,10 @@ body {
     background-color: var(--primary);
   }
 
+  .text-primary {
+    color: var(--primary);
+  }
+
   .text-primary-foreground {
     color: var(--primary-foreground);
   }

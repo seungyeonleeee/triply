@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-full max-h-screen items-center justify-center p-6 bg-gray-50">
+    <div className="size-full flex items-center justify-center p-6 bg-gray-50">
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-xl font-bold text-gray-600">로그인</CardTitle>
