@@ -11,6 +11,7 @@ interface TripsState {
     data: Partial<Place>
   ) => void;
   removePlace: (tripId: string, placeId: string) => void;
+  removeTrip: (tripId: string) => void;
   getTripById: (id: string) => Trip | undefined;
 }
 
@@ -57,6 +58,11 @@ export const useTripsStore = create<TripsState>((set, get) => ({
             }
           : trip
       ),
+    })),
+
+  removeTrip: (tripId) =>
+    set((state) => ({
+      trips: state.trips.filter((trip) => trip.id !== tripId),
     })),
 
   getTripById: (id) => {
