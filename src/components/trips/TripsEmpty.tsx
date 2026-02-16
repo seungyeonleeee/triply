@@ -1,6 +1,6 @@
 "use client";
 
-import CreateTripWizard from "./CreateTripWizard";
+import CreateTripDialog from "./CreateTripDialog";
 
 export default function TripsEmpty() {
   return (
@@ -9,7 +9,7 @@ export default function TripsEmpty() {
         아직 여행이 없어요.
       </p>
 
-      <CreateTripWizard />
+      <CreateTripDialog variant="button" />
     </div>
   );
 }

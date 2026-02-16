@@ -44,17 +44,17 @@ export default function TripCard({ trip }: TripCardProps) {
   return (
     <div className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all bg-white">
       <Link href={`/trips/${id}`} className="block">
-        <div className="flex h-28">
+        <div className="flex h-24">
           {/* 이미지 섹션 */}
           <div className="w-1/4 h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center text-white">
           </div>
 
           {/* 콘텐츠 섹션 */}
-          <div className="flex-1 p-4 flex flex-col justify-between relative">
+          <div className="flex-1 p-4 flex flex-col justify-center relative">
             <div>
               <h3 className="font-semibold text-base truncate">{formattedTitle}</h3>
-              <p className="text-xs text-muted-foreground mt-2">{displayDate}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mt-1">{displayDate}</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 {places.length}개 장소
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function TripCard({ trip }: TripCardProps) {
 
       {/* 더보기 메뉴 */}
       <div
-        className="absolute top-1/2 right-3 transform -translate-y-1/2"
+        className="absolute top-1 right-3"
         onClick={(e) => e.preventDefault()}
       >
         <DropdownMenu>
@@ -79,7 +79,7 @@ export default function TripCard({ trip }: TripCardProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="p-0 min-w-none">
             <ButtonGroup className="rounded-md border-0 bg-white">
-              <Link href={`/trips/${id}`} onClick={(e) => e.stopPropagation()}>
+              <Link href={`/trips/${id}`} onClick={(e) => e.stopPropagation()} className="w-full h-full">
                 <ButtonGroupItem>수정</ButtonGroupItem>
               </Link>
               <ButtonGroupItem onClick={handleDelete} className="text-red-600 hover:text-red-600">

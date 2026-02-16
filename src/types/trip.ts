@@ -4,7 +4,15 @@ export interface Place {
   memo?: string;
 }
 
-export type TravelStyle = "활동적" | "휴식" | "문화" | "미식" | "모험";
+export type TravelStyle = 
+  | "체험·액티비티"
+  | "SNS 핫플레이스"
+  | "자연과 함께"
+  | "유명 관광지 필수"
+  | "여유롭게 힐링"
+  | "문화·예술·역사"
+  | "쇼핑은 열정적으로"
+  | "관광보다 먹방";
 
 export interface Trip {
   id: string;
@@ -12,7 +20,7 @@ export interface Trip {
   startDate?: string;
   endDate?: string;
   places: Place[];
-  companions?: string[]; // 동행자 목록
-  travelStyle?: TravelStyle; // 여행 스타일
+  companions?: string; 
+  travelStyles?: TravelStyle[];
   createdAt: string;
 }
