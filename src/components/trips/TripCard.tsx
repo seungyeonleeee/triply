@@ -25,8 +25,7 @@ export default function TripCard({ trip }: TripCardProps) {
     removeTrip(id);
   };
 
-  const firstPlace = places.length > 0 ? places[0].name : "미정";
-  const formattedTitle = `${firstPlace} 여행`;
+  const formattedTitle = `${title} 여행`;
 
   // 날짜 포맷
   const formatDate = (dateString?: string) => {

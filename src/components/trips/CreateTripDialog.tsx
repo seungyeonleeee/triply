@@ -23,8 +23,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("places");
   const [title, setTitle] = useState("");
-  const [places, setPlaces] = useState<string[]>([]);
-  const [currentPlace, setCurrentPlace] = useState("");
   const [companions, setCompanions] = useState<string>("");
   const [currentCompanion, setCurrentCompanion] = useState("");
   const [companionType, setCompanionType] = useState<string>("");
@@ -72,16 +70,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     }
   };
 
-  const handleAddPlace = () => {
-    if (currentPlace.trim() && !places.includes(currentPlace.trim())) {
-      setPlaces([...places, currentPlace.trim()]);
-      setCurrentPlace("");
-    }
-  };
-
-  const handleRemovePlace = (place: string) => {
-    setPlaces(places.filter((p) => p !== place));
-  };
 
   const handleCompanionTypeSelect = (type: string) => {
     if (type === "기타") {
@@ -112,10 +100,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     addTrip({
       id: crypto.randomUUID(),
       title: title.trim() || "제목 없음",
-      places: places.map((place) => ({
-        id: crypto.randomUUID(),
-        name: place,
-      })),
+      places: [],
       companions: companionType === "혼자" ? undefined : companions,
       travelStyles: styles.length > 0 ? (styles as TravelStyle[]) : undefined,
       startDate: startDate || undefined,
@@ -125,7 +110,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
 
     // 초기화 및 닫기
     setTitle("");
-    setPlaces([]);
     setCompanions("");
     setCurrentCompanion("");
     setCompanionType("");
@@ -165,47 +149,22 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
           {step === "places" && (
             <div className="space-y-3">
               <label htmlFor="place-input" className="text-sm font-medium mb-4 block">
-                방문할 장소 <span className="text-blue-500">*</span>
+                방문할 나라 또는 지역을 입력해주세요. <span className="text-blue-500">*</span>
               </label>
               <div className="flex gap-2">
                 <Input
                   id="place-input"
                   placeholder="장소 입력"
-                  value={currentPlace}
-                  onChange={(e) => setCurrentPlace(e.target.value)}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") handleAddPlace();
+                    if (e.key === "Enter") {
+                      setStep("companions");
+                    }
                   }}
                 />
-                <Button
-                  onClick={handleAddPlace}
-                  variant="outline"
-                  size="sm"
-                  className="h-9"
-                >
-                  추가
-                </Button>
               </div>
-              {places.length > 0 && (
-                <div className="space-y-2">
-                  {places.map((place) => (
-                    <div
-                      key={place}
-                      className="flex items-center justify-between bg-secondary p-2 rounded"
-                    >
-                      <span className="text-sm">{place}</span>
-                      <Button
-                        onClick={() => handleRemovePlace(place)}
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2"
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
@@ -367,7 +326,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             <Button
               onClick={handleCreate}
               className="flex-1"
-              disabled={ places.length === 0 || !startDate || !endDate || endDate < startDate }
+              disabled={ title.trim() === "" || !startDate || !endDate || endDate < startDate }
             >
               여행 만들기
             </Button>
@@ -376,7 +335,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
               onClick={handleNext}
               className="flex-1"
               disabled={
-                (step === "places" && places.length === 0)
+                (step === "places" && title.trim() === "")
               }
             >
               다음
