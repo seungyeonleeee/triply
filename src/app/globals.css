@@ -69,7 +69,7 @@ body {
 
   --input: oklch(0.922 0 0);
 
-  --ring: #0084FF;
+  --ring: #9ca3af;
 
   --chart-1: oklch(0.646 0.222 41.116);
 
@@ -145,7 +145,7 @@ body {
 
   --input: oklch(1 0 0 / 15%);
 
-  --ring: #0084FF;
+  --ring: #9ca3af;
 
   --chart-1: oklch(0.488 0.243 264.376);
 
@@ -284,4 +284,3 @@ body {
       var(--tw-shadow);
   }
 }
-

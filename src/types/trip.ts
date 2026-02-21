@@ -24,3 +24,10 @@ export interface Trip {
   travelStyles?: TravelStyle[];
   createdAt: string;
 }
+
+export interface Place {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+}

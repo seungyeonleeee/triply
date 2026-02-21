@@ -1,9 +1,14 @@
 ﻿"use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTripsStore } from "@/store/tripsStore";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { TravelStyle } from "@/types/trip";
 import { TRAVEL_STYLES } from "@/constants/trip";
+import { cn } from "@/lib/utils";
 
 type Step = "places" | "companions" | "style" | "dates";
 
@@ -30,8 +36,9 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
   const [companionType, setCompanionType] = useState<string>("");
   const [showCompanionInput, setShowCompanionInput] = useState(false);
   const [styles, setStyles] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const [numberOfMonths, setNumberOfMonths] = useState(1);
 
   const addTrip = useTripsStore((state) => state.addTrip);
 
@@ -89,8 +96,8 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
       places: [],
       companions: companionType === "혼자" ? undefined : companions,
       travelStyles: styles.length > 0 ? (styles as TravelStyle[]) : undefined,
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
+      startDate: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
+      endDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
       createdAt: new Date().toISOString(),
     });
 
@@ -99,11 +106,25 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     setCompanionType("");
     setShowCompanionInput(false);
     setStyles([]);
-    setStartDate("");
-    setEndDate("");
+    setDateRange(undefined);
+    setDatePopoverOpen(false);
     setStep("places");
     setOpen(false);
-  }, [title, companionType, companions, styles, startDate, endDate, addTrip]);
+  }, [title, companionType, companions, styles, dateRange, addTrip]);
+
+  const handleDateRangeSelect = useCallback((range: DateRange | undefined) => {
+    setDateRange(range);
+  }, []);
+
+  useEffect(() => {
+    const updateMonths = () => {
+      setNumberOfMonths(window.innerWidth >= 768 ? 2 : 1);
+    };
+
+    updateMonths();
+    window.addEventListener("resize", updateMonths);
+    return () => window.removeEventListener("resize", updateMonths);
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -158,7 +179,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
                   <button
                     key={option}
                     onClick={() => handleCompanionTypeSelect(option)}
-                    className={`px-5 py-2 rounded-full border-2 font-medium transition-colors ${
+                    className={`px-5 py-2 rounded-full border-2 font-medium text-sm transition-colors ${
                       companionType === option
                         ? "border-blue-500 bg-blue-500 text-white"
                         : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
@@ -225,20 +246,53 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
               <label className="text-sm font-medium mb-4 block">
                 여행 날짜 <span className="text-blue-500">*</span>
               </label>
-              <div className="space-y-2">
-                <div>
-                  <label htmlFor="start-date" className="text-xs text-muted-foreground mb-2 block">
-                    시작 날짜
-                  </label>
-                  <Input id="start-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                </div>
-                <div>
-                  <label htmlFor="end-date" className="text-xs text-muted-foreground mb-2 block">
-                    종료 날짜
-                  </label>
-                  <Input id="end-date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                </div>
-              </div>
+              <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="trip-date-range"
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dateRange?.from && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "yyyy.MM.dd")} - {format(dateRange.to, "yyyy.MM.dd")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "yyyy.MM.dd")
+                      )
+                    ) : (
+                      <span>날짜를 선택해주세요</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="fixed! left-1/2! top-1/2! -translate-x-1/2! -translate-y-1/2! w-[calc(100vw-2rem)] max-w-[80vw] bg-white p-0"
+                  align="center"
+                >
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={handleDateRangeSelect}
+                    numberOfMonths={numberOfMonths}
+                  />
+                  <div className="flex justify-end border-t p-2">
+                    <Button
+                      size="sm"
+                      onClick={() => setDatePopoverOpen(false)}
+                      disabled={!dateRange?.from || !dateRange?.to}
+                    >
+                      완료
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
@@ -259,7 +313,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             <Button
               onClick={handleCreate}
               className="flex-1"
-              disabled={title.trim() === "" || !startDate || !endDate || endDate < startDate}
+              disabled={title.trim() === "" || !dateRange?.from || !dateRange?.to}
             >
               여행 만들기
             </Button>

@@ -1,22 +1,28 @@
 "use client"
 
 import * as React from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useTripsStore } from "@/store/tripsStore"
 import { Button } from "@/components/ui/button"
 import { PlaceDialog } from "@/components/trips/PlaceDialog"
 import { DaySection } from "@/components/trips/DaySection"
 import { TripEditDialog } from "@/components/trips/TripEditDialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import type { TripItem } from "@/components/trips/TimelineList"
+import { loadGoogleMaps } from "@/lib/googleMaps"
 
 declare global {
   interface Window {
-    daum?: any
-    kakao?: any
+    google?: any
   }
 }
 
-type Category = "관광명소" | "맛집" | "카페" | "쇼핑" | "숙소" | "교통"
+type Category = string
 type TransportKind = "flight" | "bus" | "taxi" | "subway" | "walk"
 type TripItemType = "place" | "stay" | "memo" | "transport" | "flight"
 
@@ -34,107 +40,41 @@ interface PlaceLike {
   memo?: string
 }
 
-// ============================================================================
-// Script Loading
-// ============================================================================
+async function geocodeAddress(
+  addr: string
+): Promise<{ lat: number; lng: number } | null> {
+  await loadGoogleMaps()
+  if (!window.google?.maps) return null
 
-function loadScriptOnce(src: string, id: string) {
-  if (typeof window === "undefined") return
-  if (document.getElementById(id)) return
-  const s = document.createElement("script")
-  s.id = id
-  s.src = src
-  s.async = true
-  document.head.appendChild(s)
-}
-
-// ============================================================================
-// Geocoding
-// ============================================================================
-
-async function geocodeAddress(addr: string): Promise<{ lat: number; lng: number } | null> {
-  const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY
-  if (!key) return null
-
-  await new Promise<void>((resolve) => {
-    const tick = () => {
-      if (window.kakao?.maps) return resolve()
-      setTimeout(tick, 50)
-    }
-    tick()
-  })
-
-  await new Promise<void>((resolve) => {
-    window.kakao.maps.load(() => resolve())
-  })
-
-  return await new Promise((resolve) => {
-    try {
-      const geocoder = new window.kakao.maps.services.Geocoder()
-      geocoder.addressSearch(addr, (result: any[], status: string) => {
-        if (status === window.kakao.maps.services.Status.OK && result?.[0]) {
-          resolve({ lat: Number(result[0].y), lng: Number(result[0].x) })
-        } else {
-          resolve(null)
-        }
-      })
-    } catch {
-      resolve(null)
-    }
+  return new Promise((resolve) => {
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode({ address: addr }, (results: any, status: string) => {
+      if (status === "OK" && results?.[0]) {
+        const location = results[0].geometry.location
+        resolve({ lat: location.lat(), lng: location.lng() })
+      } else {
+        resolve(null)
+      }
+    })
   })
 }
-
-async function ensureKakaoLoaded(): Promise<void> {
-  const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY
-  if (!key) throw new Error("NEXT_PUBLIC_KAKAO_JS_KEY missing")
-
-  await new Promise<void>((resolve) => {
-    const tick = () => {
-      if (window.kakao?.maps) return resolve()
-      setTimeout(tick, 50)
-    }
-    tick()
-  })
-
-  await new Promise<void>((resolve) => {
-    window.kakao.maps.load(() => resolve())
-  })
-}
-
-// ============================================================================
-// Main Component
-// ============================================================================
 
 export default function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>()
+  const router = useRouter()
 
   const trip = useTripsStore((state) => state.trips.find((t: any) => t.id === tripId))
   const addPlace = useTripsStore((state) => state.addPlace)
   const updatePlace = useTripsStore((state) => state.updatePlace)
   const removePlace = useTripsStore((state) => state.removePlace)
+  const removeTrip = useTripsStore((state) => state.removeTrip)
   const editTrip = useTripsStore((state) => state.editTrip)
 
-  // ========================================================================
-  // Kakao Scripts
-  // ========================================================================
-
   React.useEffect(() => {
-    loadScriptOnce(
-      "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js",
-      "daum-postcode"
-    )
-    const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY
-    if (key) {
-      loadScriptOnce(
-        `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${key}&autoload=false&libraries=services`,
-        "kakao-maps-sdk"
-      )
-    }
+    loadGoogleMaps().catch((error) => {
+      console.error("Google Maps preload failed in TripDetailPage", error)
+    })
   }, [])
-
-  // ========================================================================
-  // Day Management
-  // ========================================================================
 
   const generateDays = React.useCallback(() => {
     if (!trip?.startDate || !trip?.endDate) return []
@@ -166,9 +106,6 @@ export default function TripDetailPage() {
       : `${formatDate(trip.startDate)}`
     : "미정"
 
-  // ========================================================================
-  // Edit Trip Handler
-  // ========================================================================
   const [openEditTrip, setOpenEditTrip] = React.useState(false)
 
   const onSaveTrip = (data: Partial<TripItem>) => {
@@ -176,9 +113,11 @@ export default function TripDetailPage() {
     editTrip(trip.id, data)
   }
 
-  // ========================================================================
-  // Place Dialog Form State
-  // ========================================================================
+  const onDeleteTrip = () => {
+    if (!trip) return
+    removeTrip(trip.id)
+    router.push("/trips")
+  }
 
   const [openAddPlace, setOpenAddPlace] = React.useState(false)
   const [targetDay, setTargetDay] = React.useState<number>(1)
@@ -203,40 +142,6 @@ export default function TripDetailPage() {
     setEditingItem(null)
   }
 
-  // ========================================================================
-  // Place Dialog Handlers
-  // ========================================================================
-
-  const openPostcode = React.useCallback(async () => {
-    if (!window.daum?.Postcode) {
-      alert("주소 검색 로딩 중… 잠깐만!")
-      return
-    }
-
-    new window.daum.Postcode({
-      oncomplete: async (data: any) => {
-        const addr = data?.roadAddress || data?.jibunAddress || data?.address || ""
-        setAddress(addr)
-
-        try {
-          await ensureKakaoLoaded()
-          const geocoder = new window.kakao.maps.services.Geocoder()
-          geocoder.addressSearch(addr, (result: any[], status: string) => {
-            if (status === window.kakao.maps.services.Status.OK && result?.[0]) {
-              const x = Number(result[0].x)
-              const y = Number(result[0].y)
-              setCoords({ lat: y, lng: x })
-            } else {
-              setCoords({})
-            }
-          })
-        } catch {
-          setCoords({})
-        }
-      },
-    }).open()
-  }, [])
-
   const onAddPlace = async () => {
     if (!trip) return
 
@@ -252,26 +157,24 @@ export default function TripDetailPage() {
       }
     }
 
-    const isTransport = placeCategory === "교통"
+    const isTransport =
+      placeCategory === "교통" || placeCategory === "援먰넻" || placeCategory === "?대???"
+    const isStay =
+      placeCategory === "숙소" || placeCategory === "?숈냼" || placeCategory === "??덈꺖"
     const isFlight = isTransport && transportKind === "flight"
     const type: TripItemType =
-      isFlight ? "flight" : isTransport ? "transport" : placeCategory === "숙소" ? "stay" : "place"
+      isFlight ? "flight" : isTransport ? "transport" : isStay ? "stay" : "place"
 
     const payload: PlaceLike = {
       id: editingItem?.id || crypto.randomUUID(),
-      name:
-        placeName.trim() ||
-        address
-          .split(" ")
-          .slice(0, 4)
-          .join(" "),
+      name: placeName.trim() || address.split(" ").slice(0, 4).join(" "),
       day: targetDay,
       type,
       time: placeTime.trim() || undefined,
       category: placeCategory,
       transportKind: isTransport ? transportKind : undefined,
       memo: placeMemo.trim() || undefined,
-      address,
+      address: address || "",
       lat,
       lng,
     }
@@ -306,12 +209,6 @@ export default function TripDetailPage() {
     setOpenAddPlace(true)
   }
 
-
-
-  // ========================================================================
-  // Render
-  // ========================================================================
-
   if (!trip) {
     return <div className="p-4 text-sm">여행을 찾을 수 없어요.</div>
   }
@@ -327,12 +224,8 @@ export default function TripDetailPage() {
       .filter((p) => (p.day ?? 1) === day)
       .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
 
-
-  console.log("trip", trip)
-
   return (
-    <div className="size-full min-h-screen bg-neutral-50 p-4 space-y-6 pb-20 pt-8">
-      {/* Header */}
+    <div className="size-full min-h-screen bg-neutral-50 p-4 space-y-6 pb-20 pt-6">
       <div className="space-y-3 border-b border-neutral-200 pb-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
@@ -355,21 +248,35 @@ export default function TripDetailPage() {
             )}
           </div>
 
-          <Button variant="ghost" size="sm" className="p-2" onClick={() => setOpenEditTrip(true)}>
-            ✏️
-          </Button>
-          {trip && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="p-2 border-0 text-2xl text-gray-400 hover:text-gray-600"
+              >
+                ⋯
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="p-1 min-w-20 bg-white">
+              <DropdownMenuItem onClick={() => setOpenEditTrip(true)} className="justify-center">
+                수정
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600 focus:text-red-600 border-t justify-center" onClick={onDeleteTrip}>
+                삭제
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <TripEditDialog
             open={openEditTrip}
             onOpenChange={setOpenEditTrip}
             trip={trip}
             onSave={onSaveTrip}
           />
-        )}
         </div>
       </div>
 
-      {/* Day Sections */}
       <div className="space-y-6">
         {days.length > 0 ? (
           days.map((dayInfo) => {
@@ -390,7 +297,6 @@ export default function TripDetailPage() {
                   }}
                 />
 
-                {/* Dialog only shows for the current day */}
                 {isCurrentDay && (
                   <PlaceDialog
                     open={isCurrentDay}
@@ -410,7 +316,8 @@ export default function TripDetailPage() {
                     onPlaceMemoChange={setPlaceMemo}
                     address={address}
                     coords={coords}
-                    onOpenPostcode={openPostcode}
+                    onAddressChange={setAddress}
+                    onCoordsChange={setCoords}
                     onReset={resetPlaceForm}
                   />
                 )}
@@ -419,7 +326,7 @@ export default function TripDetailPage() {
           })
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <p>여행 날짜를 선택하면 일정을 계획할 수 있어요.</p>
+            <p>여행 날짜를 선택하면 일정 계획을 시작할 수 있어요.</p>
           </div>
         )}
       </div>

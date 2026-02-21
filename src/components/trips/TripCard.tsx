@@ -81,7 +81,7 @@ export default function TripCard({ trip }: TripCardProps) {
               <Link href={`/trips/${id}`} onClick={(e) => e.stopPropagation()} className="w-full h-full">
                 <ButtonGroupItem>수정</ButtonGroupItem>
               </Link>
-              <ButtonGroupItem onClick={handleDelete} className="text-red-600 hover:text-red-600">
+              <ButtonGroupItem onClick={handleDelete} className="text-red-600 hover:text-red-600 border-l">
                 삭제
               </ButtonGroupItem>
             </ButtonGroup>
