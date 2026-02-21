@@ -1,10 +1,10 @@
-export interface Place {
+﻿export interface Place {
   id: string;
   name: string;
   memo?: string;
 }
 
-export type TravelStyle = 
+export type TravelStyle =
   | "체험·액티비티"
   | "SNS 핫플레이스"
   | "자연과 함께"
@@ -20,7 +20,7 @@ export interface Trip {
   startDate?: string;
   endDate?: string;
   places: Place[];
-  companions?: string; 
+  companions?: string;
   travelStyles?: TravelStyle[];
   createdAt: string;
 }

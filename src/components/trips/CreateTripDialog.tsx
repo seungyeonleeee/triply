@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useTripsStore } from "@/store/tripsStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { TravelStyle } from "@/types/trip";
+import { TRAVEL_STYLES } from "@/constants/trip";
 
 type Step = "places" | "companions" | "style" | "dates";
 
@@ -19,12 +20,13 @@ interface CreateTripWizardProps {
   variant?: "button" | "icon";
 }
 
+const COMPANION_OPTIONS = ["혼자", "친구와", "가족과", "연인과", "배우자와", "아이와", "부모님과"];
+
 export default function CreateTripDialog({ variant = "button" }: CreateTripWizardProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("places");
   const [title, setTitle] = useState("");
   const [companions, setCompanions] = useState<string>("");
-  const [currentCompanion, setCurrentCompanion] = useState("");
   const [companionType, setCompanionType] = useState<string>("");
   const [showCompanionInput, setShowCompanionInput] = useState(false);
   const [styles, setStyles] = useState<string[]>([]);
@@ -33,20 +35,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
 
   const addTrip = useTripsStore((state) => state.addTrip);
 
-  const companionOptions = ["혼자", "친구와", "가족과", "연인과", "배우자와", "아이와", "부모님과"];
-  
-  const travelStyles = [
-    "체험·액티비티",
-    "SNS 핫플레이스",
-    "자연과 함께",
-    "유명 관광지 필수",
-    "여유롭게 힐링",
-    "문화·예술·역사",
-    "쇼핑은 열정적으로",
-    "관광보다 먹방",
-  ];
-
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (step === "places") {
       setStep("companions");
     } else if (step === "companions") {
@@ -54,9 +43,9 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     } else if (step === "style") {
       setStep("dates");
     }
-  };
+  }, [step]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     switch (step) {
       case "companions":
         setStep("places");
@@ -68,31 +57,28 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
         setStep("style");
         break;
     }
-  };
+  }, [step]);
 
-
-  const handleCompanionTypeSelect = (type: string) => {
+  const handleCompanionTypeSelect = useCallback((type: string) => {
     if (type === "기타") {
       setCompanionType(type);
       setShowCompanionInput(true);
       setCompanions("");
-      setCurrentCompanion("");
     } else {
       setCompanionType(type);
       setShowCompanionInput(false);
       setCompanions(type);
-      setCurrentCompanion("");
     }
-  };
+  }, []);
 
-  const handleAddCustomCompanion = () => {
-    if (currentCompanion.trim()) {
-      setCompanions(currentCompanion.trim());
-      setCurrentCompanion("");
+  const handleAddCustomCompanion = useCallback(() => {
+    if (companions.trim()) {
+      setCompanions(companions.trim());
+      setCompanions("");
     }
-  };
+  }, [companions]);
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     if (title.trim() === "") {
       setTitle("");
     }
@@ -108,10 +94,8 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
       createdAt: new Date().toISOString(),
     });
 
-    // 초기화 및 닫기
     setTitle("");
     setCompanions("");
-    setCurrentCompanion("");
     setCompanionType("");
     setShowCompanionInput(false);
     setStyles([]);
@@ -119,8 +103,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     setEndDate("");
     setStep("places");
     setOpen(false);
-  };
-  (useTripsStore.getState().trips);
+  }, [title, companionType, companions, styles, startDate, endDate, addTrip]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -145,7 +128,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Step 1: 장소 */}
           {step === "places" && (
             <div className="space-y-3">
               <label htmlFor="place-input" className="text-sm font-medium mb-4 block">
@@ -168,12 +150,11 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             </div>
           )}
 
-          {/* Step 3: 동행자 */}
           {step === "companions" && (
             <div className="space-y-3">
               <label className="text-sm font-medium mb-4 block">동행자 선택</label>
               <div className="flex flex-wrap gap-2">
-                {[...companionOptions, "기타"].map((option) => (
+                {[...COMPANION_OPTIONS, "기타"].map((option) => (
                   <button
                     key={option}
                     onClick={() => handleCompanionTypeSelect(option)}
@@ -195,18 +176,10 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
                     <Input
                       id="companion-custom-input"
                       placeholder="누구랑 떠나시나요?"
-                      value={currentCompanion}
-                      onChange={(e) => setCurrentCompanion(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") handleAddCustomCompanion();
-                      }}
+                      value={companions}
+                      onChange={(e) => setCompanions(e.target.value)}
                     />
-                    <Button
-                      onClick={handleAddCustomCompanion}
-                      variant="outline"
-                      size="sm"
-                      className="h-9"
-                    >
+                    <Button onClick={handleAddCustomCompanion} variant="outline" size="sm" className="h-9">
                       추가
                     </Button>
                   </div>
@@ -220,12 +193,11 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             </div>
           )}
 
-          {/* Step 2: 여행 스타일 */}
           {step === "style" && (
             <div className="space-y-3">
               <label className="text-sm font-medium mb-4 block">여행 스타일 선택</label>
               <div className="grid grid-cols-2 gap-2">
-                {travelStyles.map((s) => (
+                {TRAVEL_STYLES.map((s) => (
                   <button
                     key={s}
                     onClick={() => {
@@ -248,7 +220,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             </div>
           )}
 
-          {/* Step 3: 날짜 */}
           {step === "dates" && (
             <div className="space-y-3">
               <label className="text-sm font-medium mb-4 block">
@@ -259,66 +230,28 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
                   <label htmlFor="start-date" className="text-xs text-muted-foreground mb-2 block">
                     시작 날짜
                   </label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
+                  <Input id="start-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 </div>
                 <div>
                   <label htmlFor="end-date" className="text-xs text-muted-foreground mb-2 block">
                     종료 날짜
                   </label>
-                  <Input
-                    id="end-date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
+                  <Input id="end-date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* 진행률 표시 */}
           <div className="flex gap-0 mt-6 rounded-full overflow-hidden h-1 bg-gray-200">
-            <div
-              className={`flex-1 ${
-                ["places", "companions", "style", "dates"].indexOf(step) >= 0
-                  ? "bg-blue-500"
-                  : "bg-gray-200"
-              }`}
-            />
-            <div
-              className={`flex-1 ${
-                ["companions", "style", "dates"].indexOf(step) >= 0
-                  ? "bg-blue-500"
-                  : "bg-gray-200"
-              }`}
-            />
-            <div
-              className={`flex-1 ${
-                ["style", "dates"].indexOf(step) >= 0
-                  ? "bg-blue-500"
-                  : "bg-gray-200"
-              }`}
-            />
-            <div
-              className={`flex-1 ${
-                step === "dates" ? "bg-blue-500" : "bg-gray-200"
-              }`}
-            />
+            <div className={`flex-1 ${["places", "companions", "style", "dates"].indexOf(step) >= 0 ? "bg-blue-500" : "bg-gray-200"}`} />
+            <div className={`flex-1 ${["companions", "style", "dates"].indexOf(step) >= 0 ? "bg-blue-500" : "bg-gray-200"}`} />
+            <div className={`flex-1 ${["style", "dates"].indexOf(step) >= 0 ? "bg-blue-500" : "bg-gray-200"}`} />
+            <div className={`flex-1 ${step === "dates" ? "bg-blue-500" : "bg-gray-200"}`} />
           </div>
         </div>
 
-        {/* 버튼 */}
         <div className="flex gap-2 justify-between mt-6">
-          <Button
-            onClick={handlePrev}
-            variant="outline"
-            disabled={step === "places"}
-          >
+          <Button onClick={handlePrev} variant="outline" disabled={step === "places"}>
             이전
           </Button>
 
@@ -326,18 +259,12 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
             <Button
               onClick={handleCreate}
               className="flex-1"
-              disabled={ title.trim() === "" || !startDate || !endDate || endDate < startDate }
+              disabled={title.trim() === "" || !startDate || !endDate || endDate < startDate}
             >
               여행 만들기
             </Button>
           ) : (
-            <Button
-              onClick={handleNext}
-              className="flex-1"
-              disabled={
-                (step === "places" && title.trim() === "")
-              }
-            >
+            <Button onClick={handleNext} className="flex-1" disabled={step === "places" && title.trim() === ""}>
               다음
             </Button>
           )}

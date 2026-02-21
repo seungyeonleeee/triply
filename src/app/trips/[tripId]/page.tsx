@@ -6,6 +6,7 @@ import { useTripsStore } from "@/store/tripsStore"
 import { Button } from "@/components/ui/button"
 import { PlaceDialog } from "@/components/trips/PlaceDialog"
 import { DaySection } from "@/components/trips/DaySection"
+import { TripEditDialog } from "@/components/trips/TripEditDialog"
 import type { TripItem } from "@/components/trips/TimelineList"
 
 declare global {
@@ -111,6 +112,7 @@ export default function TripDetailPage() {
   const addPlace = useTripsStore((state) => state.addPlace)
   const updatePlace = useTripsStore((state) => state.updatePlace)
   const removePlace = useTripsStore((state) => state.removePlace)
+  const editTrip = useTripsStore((state) => state.editTrip)
 
   // ========================================================================
   // Kakao Scripts
@@ -163,6 +165,16 @@ export default function TripDetailPage() {
       ? `${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`
       : `${formatDate(trip.startDate)}`
     : "미정"
+
+  // ========================================================================
+  // Edit Trip Handler
+  // ========================================================================
+  const [openEditTrip, setOpenEditTrip] = React.useState(false)
+
+  const onSaveTrip = (data: Partial<TripItem>) => {
+    if (!trip) return
+    editTrip(trip.id, data)
+  }
 
   // ========================================================================
   // Place Dialog Form State
@@ -315,6 +327,9 @@ export default function TripDetailPage() {
       .filter((p) => (p.day ?? 1) === day)
       .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
 
+
+  console.log("trip", trip)
+
   return (
     <div className="size-full min-h-screen bg-neutral-50 p-4 space-y-6 pb-20 pt-8">
       {/* Header */}
@@ -340,9 +355,17 @@ export default function TripDetailPage() {
             )}
           </div>
 
-          <Button variant="ghost" size="sm" className="p-2">
+          <Button variant="ghost" size="sm" className="p-2" onClick={() => setOpenEditTrip(true)}>
             ✏️
           </Button>
+          {trip && (
+          <TripEditDialog
+            open={openEditTrip}
+            onOpenChange={setOpenEditTrip}
+            trip={trip}
+            onSave={onSaveTrip}
+          />
+        )}
         </div>
       </div>
 

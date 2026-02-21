@@ -4,6 +4,7 @@ import { Trip, Place } from "@/types/trip";
 interface TripsState {
   trips: Trip[];
   addTrip: (trip: Trip) => void;
+  editTrip: (tripId: string, data: Partial<Trip>) => void;
   addPlace: (tripId: string, place: Place) => void;
   updatePlace: (
     tripId: string,
@@ -22,6 +23,13 @@ export const useTripsStore = create<TripsState>((set, get) => ({
     set((state) => ({
       trips: [...state.trips, trip],
     })),
+
+  editTrip: (tripId, data) =>
+  set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId ? { ...trip, ...data } : trip
+    ),
+  })),
 
   addPlace: (tripId, place) =>
     set((state) => ({
