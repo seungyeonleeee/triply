@@ -22,8 +22,8 @@ export default function Header() {
           <Image
             src="/images/logo.png"
             alt="logo"
-            width={100}
-            height={50}
+            width={80}
+            height={45}
           />
         </Link>
 

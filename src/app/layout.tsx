@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="bg-gray-100 text-gray-900">
+      <body className="bg-gray-100 text-gray-900 min-w-[320px]">
         <AuthProvider>
           <div className="flex justify-center min-h-screen">
             {/* Left Side */}

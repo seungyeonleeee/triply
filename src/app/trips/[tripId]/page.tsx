@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { PlaceDialog } from "@/components/trips/PlaceDialog"
 import { DaySection } from "@/components/trips/DaySection"
 import { TripEditDialog } from "@/components/trips/TripEditDialog"
+import { ChecklistDialog } from "@/components/trips/ChecklistDialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,12 +100,12 @@ export default function TripDetailPage() {
     return `${date.getMonth() + 1}/${date.getDate()}`
   }
 
-  const displayTitle = trip?.title ? `${trip.title} 여행` : "제목 없는 여행"
+  const displayTitle = trip?.title ? `${trip.title} 여행` : "여행 제목"
   const displayDate = trip?.startDate
     ? trip?.endDate
       ? `${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`
       : `${formatDate(trip.startDate)}`
-    : "미정"
+    : "날짜 미정"
 
   const [openEditTrip, setOpenEditTrip] = React.useState(false)
 
@@ -130,6 +131,9 @@ export default function TripDetailPage() {
   const [address, setAddress] = React.useState("")
   const [coords, setCoords] = React.useState<{ lat?: number; lng?: number }>({})
   const [editingItem, setEditingItem] = React.useState<TripItem | null>(null)
+  const [openChecklist, setOpenChecklist] = React.useState(false)
+
+
 
   const resetPlaceForm = () => {
     setPlaceName("")
@@ -157,10 +161,8 @@ export default function TripDetailPage() {
       }
     }
 
-    const isTransport =
-      placeCategory === "교통" || placeCategory === "援먰넻" || placeCategory === "?대???"
-    const isStay =
-      placeCategory === "숙소" || placeCategory === "?숈냼" || placeCategory === "??덈꺖"
+    const isTransport = placeCategory === "교통"
+    const isStay = placeCategory === "숙소"
     const isFlight = isTransport && transportKind === "flight"
     const type: TripItemType =
       isFlight ? "flight" : isTransport ? "transport" : isStay ? "stay" : "place"
@@ -210,7 +212,7 @@ export default function TripDetailPage() {
   }
 
   if (!trip) {
-    return <div className="p-4 text-sm">여행을 찾을 수 없어요.</div>
+    return <div className="p-4 text-sm">여행을 찾을 수 없습니다.</div>
   }
 
   const normalizedPlaces: TripItem[] = (trip.places ?? []).map((p: any) => ({
@@ -229,7 +231,7 @@ export default function TripDetailPage() {
       <div className="space-y-3 border-b border-neutral-200 pb-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            {trip.companions && <span className="text-sm">{trip.companions} 함께하는</span>}
+            {trip.companions && <span className="text-sm">{trip.companions}와 함께</span>}
 
             <h1 className="text-2xl font-extrabold text-neutral-900">{displayTitle}</h1>
             <p className="text-sm text-neutral-500 my-1.5">{displayDate}</p>
@@ -246,6 +248,15 @@ export default function TripDetailPage() {
                 ))}
               </div>
             )}
+          <Button variant="outline" onClick={() => setOpenChecklist(true)} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-semibold h-auto mt-2">
+           ✔ 체크리스트
+          </Button>
+          <ChecklistDialog
+            tripId={trip.id}
+            open={openChecklist}
+            onOpenChange={setOpenChecklist}
+          />
+          
           </div>
 
           <DropdownMenu>
@@ -253,17 +264,17 @@ export default function TripDetailPage() {
               <Button
                 variant="ghost"
                 size="lg"
-                className="p-2 border-0 text-2xl text-gray-400 hover:text-gray-600"
+                className="p-2 pt-0 border-0 text-2xl text-gray-400 hover:text-gray-600"
               >
-                ⋯
+                ···
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="p-1 min-w-20 bg-white">
               <DropdownMenuItem onClick={() => setOpenEditTrip(true)} className="justify-center">
-                수정
+                수정하기
               </DropdownMenuItem>
               <DropdownMenuItem className="text-red-600 focus:text-red-600 border-t justify-center" onClick={onDeleteTrip}>
-                삭제
+                삭제하기
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -326,7 +337,7 @@ export default function TripDetailPage() {
           })
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <p>여행 날짜를 선택하면 일정 계획을 시작할 수 있어요.</p>
+            <p>여행 날짜가 없어요. 여행 정보 수정에서 날짜를 먼저 설정해 주세요.</p>
           </div>
         )}
       </div>

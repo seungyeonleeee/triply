@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Trip, Place } from "@/types/trip";
+import { Trip, Place, ChecklistItem } from "@/types/trip";
 
 interface TripsState {
   trips: Trip[];
@@ -14,6 +14,10 @@ interface TripsState {
   removePlace: (tripId: string, placeId: string) => void;
   removeTrip: (tripId: string) => void;
   getTripById: (id: string) => Trip | undefined;
+  addChecklistItem: (tripId: string, item: ChecklistItem) => void;
+  toggleChecklistItem: (tripId: string, itemId: string) => void;
+  removeChecklistItem: (tripId: string, itemId: string) => void;
+  updateChecklistItem: (tripId: string, itemId: string, label: string) => void;
 }
 
 export const useTripsStore = create<TripsState>((set, get) => ({
@@ -76,4 +80,56 @@ export const useTripsStore = create<TripsState>((set, get) => ({
   getTripById: (id) => {
     return get().trips.find((trip) => trip.id === id);
   },
+
+  addChecklistItem: (tripId, item) =>
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              checklist: [...(trip.checklist ?? []), item],
+            }
+          : trip
+      ),
+    })),
+
+  toggleChecklistItem: (tripId, itemId) =>
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              checklist: trip.checklist?.map((item) =>
+                item.id === itemId ? { ...item, checked: !item.checked } : item
+              ),
+            }
+          : trip
+      ),
+    })),
+
+  removeChecklistItem: (tripId, itemId) =>
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              checklist: trip.checklist?.filter((item) => item.id !== itemId),
+            }
+          : trip
+      ),
+    })),
+
+  updateChecklistItem: (tripId, itemId, label) =>
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              checklist: trip.checklist?.map((item) =>
+                item.id === itemId ? { ...item, label } : item
+              ),
+            }
+          : trip
+      ),
+    })),
 }));

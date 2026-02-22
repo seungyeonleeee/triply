@@ -73,7 +73,7 @@ export default function TripCard({ trip }: TripCardProps) {
               size="lg"
               className="p-2 border-0 text-2xl text-gray-400 hover:text-gray-600"
             >
-              ⋯
+              ···
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="p-0 min-w-none">

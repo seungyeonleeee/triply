@@ -164,7 +164,6 @@ export function PlaceDialog({
               value={placeTime}
               onChange={(e) => onPlaceTimeChange(e.target.value)}
               type="time"
-              step="1800"
               required
             />
           </div>

@@ -14,6 +14,13 @@ export type TravelStyle =
   | "쇼핑은 열정적으로"
   | "관광보다 먹방";
 
+
+export type ChecklistItem = {
+  id: string
+  label: string
+  checked: boolean
+}
+
 export interface Trip {
   id: string;
   title: string;
@@ -23,6 +30,7 @@ export interface Trip {
   companions?: string;
   travelStyles?: TravelStyle[];
   createdAt: string;
+  checklist?: ChecklistItem[];
 }
 
 export interface Place {
