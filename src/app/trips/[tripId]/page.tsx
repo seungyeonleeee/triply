@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Place, Category, TransportKind, TripItemType } from "@/types/trip"
 import type { TripItem } from "@/components/trips/TimelineList"
 import { loadGoogleMaps } from "@/lib/googleMaps"
 
@@ -21,24 +22,6 @@ declare global {
   interface Window {
     google?: any
   }
-}
-
-type Category = string
-type TransportKind = "flight" | "bus" | "taxi" | "subway" | "walk"
-type TripItemType = "place" | "stay" | "memo" | "transport" | "flight"
-
-interface PlaceLike {
-  id: string
-  name: string
-  day: number
-  type: TripItemType
-  time?: string
-  category: Category
-  transportKind?: TransportKind
-  address?: string
-  lat?: number
-  lng?: number
-  memo?: string
 }
 
 async function geocodeAddress(
@@ -68,8 +51,18 @@ export default function TripDetailPage() {
   const addPlace = useTripsStore((state) => state.addPlace)
   const updatePlace = useTripsStore((state) => state.updatePlace)
   const removePlace = useTripsStore((state) => state.removePlace)
-  const removeTrip = useTripsStore((state) => state.removeTrip)
-  const editTrip = useTripsStore((state) => state.editTrip)
+  const removeTrip = useTripsStore((state) => state.deleteTrip)
+  const editTrip = useTripsStore((state) => state.updateTrip)
+
+  const [loading, setLoading] = React.useState(true)
+  const fetchTripDetail = useTripsStore((s) => s.fetchTripDetail)
+
+  React.useEffect(() => {
+    if (!tripId) return
+
+    setLoading(true)
+    fetchTripDetail(tripId).finally(() => setLoading(false))
+  }, [tripId, fetchTripDetail])
 
   React.useEffect(() => {
     loadGoogleMaps().catch((error) => {
@@ -147,6 +140,7 @@ export default function TripDetailPage() {
   }
 
   const onAddPlace = async () => {
+     console.log("🔥 onAddPlace called")
     if (!trip) return
 
     let lat = coords.lat
@@ -167,7 +161,7 @@ export default function TripDetailPage() {
     const type: TripItemType =
       isFlight ? "flight" : isTransport ? "transport" : isStay ? "stay" : "place"
 
-    const payload: PlaceLike = {
+    const payload: Place = {
       id: editingItem?.id || crypto.randomUUID(),
       name: placeName.trim() || address.split(" ").slice(0, 4).join(" "),
       day: targetDay,
@@ -209,6 +203,10 @@ export default function TripDetailPage() {
     setCoords({ lat: item.lat, lng: item.lng })
     setTargetDay(item.day || 1)
     setOpenAddPlace(true)
+  }
+
+  if (loading) {
+    return <div className="p-4 text-sm">불러오는 중...</div>
   }
 
   if (!trip) {

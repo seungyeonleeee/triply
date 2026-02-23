@@ -73,7 +73,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full text-base p-5"
+              className="w-full text-md p-5"
             >
               {loading ? "로그인 중..." : "로그인"}
             </Button>

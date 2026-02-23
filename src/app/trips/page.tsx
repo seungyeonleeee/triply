@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import TripCard from "@/components/trips/TripCard";
 import TripsEmpty from "@/components/trips/TripsEmpty";
 import CreateTripDialog from "@/components/trips/CreateTripDialog";
@@ -8,6 +10,19 @@ import { Button } from "@/components/ui/button";
 
 export default function TripsPage() {
   const trips = useTripsStore((state) => state.trips);
+  const fetchTrips = useTripsStore((state) => state.fetchTrips);
+
+  useEffect(() => {
+    fetchTrips();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      fetchTrips();
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [fetchTrips]);
 
   return (
     <div className={trips.length === 0 ? "size-full p-4 space-y-4" : "size-full min-h-[calc(100vh-57px)] p-4 space-y-4"}>

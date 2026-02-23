@@ -11,6 +11,7 @@ export default function AuthGuard({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  console.log("router:", router);
   const { user, loading } = useAuthStore();
 
   useEffect(() => {

@@ -1,135 +1,97 @@
 import { create } from "zustand";
 import { Trip, Place, ChecklistItem } from "@/types/trip";
+import { TripService, PlaceService, ChecklistService } from "@/services/trip.service"
 
 interface TripsState {
   trips: Trip[];
-  addTrip: (trip: Trip) => void;
-  editTrip: (tripId: string, data: Partial<Trip>) => void;
-  addPlace: (tripId: string, place: Place) => void;
-  updatePlace: (
-    tripId: string,
-    placeId: string,
-    data: Partial<Place>
-  ) => void;
-  removePlace: (tripId: string, placeId: string) => void;
-  removeTrip: (tripId: string) => void;
-  getTripById: (id: string) => Trip | undefined;
-  addChecklistItem: (tripId: string, item: ChecklistItem) => void;
-  toggleChecklistItem: (tripId: string, itemId: string) => void;
-  removeChecklistItem: (tripId: string, itemId: string) => void;
-  updateChecklistItem: (tripId: string, itemId: string, label: string) => void;
+  loading: boolean;
+
+  fetchTrips: () => Promise<void>;
+  fetchTripDetail: (id: string) => Promise<void>;
+
+  addTrip: (payload: Partial<Trip>) => Promise<void>;
+  updateTrip: (id: string, payload: Partial<Trip>) => Promise<void>;
+  deleteTrip: (id: string) => Promise<void>;
+
+  addPlace: (tripId: string, place: Place) => Promise<void>;
+  updatePlace: (tripId: string, placeId: string, payload: Partial<Place>) => Promise<void>;
+  removePlace: (tripId: string, placeId: string) => Promise<void>;
+
+  addChecklistItem: (tripId: string, item: ChecklistItem) => Promise<void>;
 }
 
 export const useTripsStore = create<TripsState>((set, get) => ({
   trips: [],
+  loading: false,
 
-  addTrip: (trip) =>
-    set((state) => ({
-      trips: [...state.trips, trip],
-    })),
-
-  editTrip: (tripId, data) =>
-  set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId ? { ...trip, ...data } : trip
-    ),
-  })),
-
-  addPlace: (tripId, place) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? { ...trip, places: [...trip.places, place] }
-          : trip
-      ),
-    })),
-
-  updatePlace: (tripId, placeId, data) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              places: trip.places.map((place) =>
-                place.id === placeId ? { ...place, ...data } : place
-              ),
-            }
-          : trip
-      ),
-    })),
-
-  removePlace: (tripId, placeId) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              places: trip.places.filter(
-                (place) => place.id !== placeId
-              ),
-            }
-          : trip
-      ),
-    })),
-
-  removeTrip: (tripId) =>
-    set((state) => ({
-      trips: state.trips.filter((trip) => trip.id !== tripId),
-    })),
-
-  getTripById: (id) => {
-    return get().trips.find((trip) => trip.id === id);
+  async fetchTrips() {
+    set({ loading: true })
+    const trips = await TripService.getTrips()
+    set({ trips, loading: false })
   },
 
-  addChecklistItem: (tripId, item) =>
+  async fetchTripDetail(id) {
+    set({ loading: true })
+    const trip = await TripService.getTripDetail(id)
+    // set({ trips: get().trips.map(t => (t.id === id ? trip : t)), loading: false })
     set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              checklist: [...(trip.checklist ?? []), item],
-            }
-          : trip
-      ),
-    })),
+      trips: [trip],
+      loading: false,
+    }))
+  },
 
-  toggleChecklistItem: (tripId, itemId) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              checklist: trip.checklist?.map((item) =>
-                item.id === itemId ? { ...item, checked: !item.checked } : item
-              ),
-            }
-          : trip
-      ),
-    })),
+  async addTrip(payload) {
+    const newTrip = await TripService.createTrip(payload)
+    set({ trips: [newTrip, ...get().trips] })
+  },
 
-  removeChecklistItem: (tripId, itemId) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              checklist: trip.checklist?.filter((item) => item.id !== itemId),
-            }
-          : trip
-      ),
-    })),
+  async updateTrip(id, payload) {
+    await TripService.updateTrip(id, payload)
+    await get().fetchTripDetail(id)
+  },
 
-  updateChecklistItem: (tripId, itemId, label) =>
-    set((state) => ({
-      trips: state.trips.map((trip) =>
+  async deleteTrip(id) {
+    await TripService.deleteTrip(id)
+    set({ trips: get().trips.filter(t => t.id !== id) })
+  },
+
+  async addPlace(tripId, place) {
+    const newPlace = await PlaceService.addPlace({
+      ...place,
+      trip_id: tripId,
+    })
+
+    set({
+      trips: get().trips.map(trip =>
         trip.id === tripId
-          ? {
-              ...trip,
-              checklist: trip.checklist?.map((item) =>
-                item.id === itemId ? { ...item, label } : item
-              ),
-            }
+          ? { ...trip, places: [...trip.places, newPlace] }
           : trip
       ),
-    })),
-}));
+    })
+  },
+
+  async updatePlace(tripId, placeId, payload) {
+    await PlaceService.updatePlace(placeId, payload)
+    await get().fetchTripDetail(tripId)
+  },
+
+  async removePlace(tripId, placeId) {
+    await PlaceService.deletePlace(placeId)
+    await get().fetchTripDetail(tripId)
+  },
+
+  async addChecklistItem(tripId, item) {
+    const newItem = await ChecklistService.addItem({
+      ...item,
+      trip_id: tripId,
+    })
+
+    set({
+      trips: get().trips.map(trip =>
+        trip.id === tripId
+          ? { ...trip, checklist: [...(trip.checklist ?? []), newItem] }
+          : trip
+      ),
+    })
+  },
+}))

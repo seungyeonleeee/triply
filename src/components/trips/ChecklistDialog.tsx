@@ -50,8 +50,8 @@ export function ChecklistDialog({ tripId, open, onOpenChange }: Props) {
                   onCheckedChange={() => toggleItem(tripId, item.id)}
                 />
                 <span
-                  className={
-                    item.checked ? "line-through text-muted-foreground" : ""
+                  className={                   
+                    item.checked ? "text-sm line-through text-muted-foreground" : "text-sm"
                   }
                 >
                   {item.label}
@@ -74,9 +74,10 @@ export function ChecklistDialog({ tripId, open, onOpenChange }: Props) {
           <Input
             placeholder="아이템 추가"
             value={label}
+            className="h-8"
             onChange={(e) => setLabel(e.target.value)}
           />
-          <Button onClick={handleAdd}>추가</Button>
+          <Button onClick={handleAdd} size="sm">추가</Button>
         </div>
       </DialogContent>
     </Dialog>
