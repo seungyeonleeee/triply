@@ -18,6 +18,8 @@ interface TripsState {
   removePlace: (tripId: string, placeId: string) => Promise<void>;
 
   addChecklistItem: (tripId: string, item: ChecklistItem) => Promise<void>;
+  toggleChecklistItem: (tripId: string, itemId: string ) => Promise<void>;
+  removeChecklistItem: (tripId: string, itemId: string) => Promise<void>;
 }
 
 export const useTripsStore = create<TripsState>((set, get) => ({
@@ -94,4 +96,36 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       ),
     })
   },
+
+  async toggleChecklistItem(tripId: string, itemId: string) {
+    const trip = get().trips.find(t => t.id === tripId)
+    const item = trip?.checklist?.find(i => i.id === itemId)
+    if (!item) return
+
+    const updatedChecked = !item.checked
+
+    // DB 업데이트 
+    await ChecklistService.updateItem(itemId, updatedChecked)
+
+    // 로컬 상태 업데이트
+    const updatedChecklist =
+      trip?.checklist?.map(i =>
+        i.id === itemId ? { ...i, checked: updatedChecked } : i
+      ) ?? []
+
+    set({
+      trips: get().trips.map(t =>
+        t.id === tripId ? { ...t, checklist: updatedChecklist } : t
+      ),
+    })
+  },
+
+  async removeChecklistItem(tripId, itemId) {
+    await ChecklistService.deleteItem(itemId)
+    const trip = get().trips.find(t => t.id === tripId)
+    const updatedChecklist = trip?.checklist?.filter(i => i.id !== itemId) ?? []  
+    set({
+      trips: get().trips.map(t => (t.id === tripId ? { ...t, checklist: updatedChecklist } : t)),
+    })
+  }
 }))

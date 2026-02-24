@@ -25,7 +25,7 @@ export default function TripsPage() {
   }, [fetchTrips]);
 
   return (
-    <div className={trips.length === 0 ? "size-full p-4 space-y-4" : "size-full min-h-[calc(100vh-57px)] p-4 space-y-4"}>
+    <div className={trips.length === 0 ? "size-full p-4 space-y-4" : "size-full min-h-[calc(100vh-58px)] p-4 space-y-4"}>
       {trips.length === 0 ? (
         <TripsEmpty />
       ) : (
