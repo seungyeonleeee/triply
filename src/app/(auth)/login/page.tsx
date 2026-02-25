@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -34,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="size-full min-h-[calc(100vh-58px)] flex items-center justify-center p-6 bg-gray-50">
+    <div className="size-full min-h-[calc(100vh-58px)] flex flex-col items-center justify-center p-6 bg-gray-50">
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-xl font-bold text-gray-600">로그인</CardTitle>
@@ -57,9 +58,9 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium text-gray-700">비밀번호</label>
-                <a href="#" className="text-xs text-[#0084FF] hover:underline">
+                <Link href="/forgot-password" className="text-xs text-[#0084FF] hover:underline">
                   비밀번호를 잊으셨나요?
-                </a>
+                </Link>
               </div>
               <Input
                 id="password"
@@ -80,6 +81,12 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      <p className="mt-4 text-center text-sm text-gray-600">
+        계정이 없으신가요?{" "}
+        <Link href="/signup" className="text-[#0084FF] hover:underline">
+          회원가입
+        </Link>
+      </p>
     </div>
   );
 }

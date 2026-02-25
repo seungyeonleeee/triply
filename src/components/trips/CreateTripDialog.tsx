@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 type Step = "places" | "companions" | "style" | "dates";
 
 interface CreateTripWizardProps {
-  variant?: "button" | "icon";
+  variant?: "button" | "iconBox";
 }
 
 const COMPANION_OPTIONS = ["혼자", "친구와", "가족과", "연인과", "배우자와", "아이와", "부모님과"];
@@ -129,10 +129,18 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {variant === "icon" ? (
-          <Button size="lg" className="rounded-full w-12 h-12 pb-1 flex items-center justify-center text-2xl">
-            +
-          </Button>
+        {variant === "iconBox" ? (  
+          <div className="flex items-center p-4 bg-linear-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200 cursor-pointer">
+            <Button size="lg" className="bg-transparent hover:bg-transparent">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="var(--primary)" className="size-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </Button>
+            <div className="flex-1">
+              <p className="font-medium text-sm">여행 일정 만들기</p>
+              <p className="text-xs text-muted-foreground">새로운 여행을 떠나보세요.</p>
+            </div>
+          </div>
         ) : (
           <Button>여행 추가하기</Button>
         )}
@@ -152,7 +160,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
           {step === "places" && (
             <div className="space-y-3">
               <label htmlFor="place-input" className="text-sm font-medium mb-4 block">
-                방문할 나라 또는 지역을 입력해주세요. <span className="text-blue-500">*</span>
+                여행의 이름을 입력해주세요. <span className="text-primary">*</span>
               </label>
               <div className="flex gap-2">
                 <Input
@@ -191,7 +199,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
               </div>
 
               {companionType === "기타" && (
-                <div className="space-y-2 mt-4 pt-4 border-t">
+                <div className="space-y-2 mt-4">
                   <label htmlFor="companion-custom-input" className="text-sm font-medium hidden"></label>
                   <div className="flex gap-2">
                     <Input
@@ -244,7 +252,7 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
           {step === "dates" && (
             <div className="space-y-3">
               <label className="text-sm font-medium mb-4 block">
-                여행 날짜 <span className="text-blue-500">*</span>
+                여행 날짜 <span className="text-primary">*</span>
               </label>
               <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                 <PopoverTrigger asChild>

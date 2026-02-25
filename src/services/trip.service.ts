@@ -23,7 +23,10 @@ export const TripService = {
 
     const { data, error } = await supabase
       .from("trips")
-      .select("*")
+      .select(`
+        *,
+        trip_places (category)
+      `)
       .order("created_at", { ascending: false })
 
     if (error) throw error

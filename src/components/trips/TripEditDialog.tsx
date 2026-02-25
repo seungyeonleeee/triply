@@ -65,7 +65,7 @@ export function TripEditDialog({ open, onOpenChange, trip, onSave }: Props) {
                 }}
                 className={`px-3 py-1 rounded-full text-xs ${
                   travelStyles.includes(style)
-                    ? "bg-blue-100 text-blue-700 border border-blue-100"
+                    ? "bg-blue-100 text-blue-600 font-semibold border border-blue-100"
                     : "bg-white text-gray-700 border border-gray-300"
                 }`}
               >

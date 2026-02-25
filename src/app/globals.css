@@ -44,7 +44,6 @@ body {
 
   --popover-foreground: oklch(0.145 0 0);
 
-  /* 포인트 컬러: 활기찬 파란색 #0084FF */
   --primary: #0084FF;
 
   --primary-foreground: oklch(0.985 0 0);

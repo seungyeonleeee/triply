@@ -33,7 +33,7 @@ export default function Header() {
             <>
               <Link
                 href="/trips"
-                className="text-sm text-gray-700 hover:underline"
+                className="text-sm text-gray-700"
               >
                 내 여행
               </Link>
@@ -45,12 +45,20 @@ export default function Header() {
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="text-sm font-medium text-blue-600"
-            >
-              로그인
-            </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/signup"
+                  className="text-sm font-medium text-primary"
+                >
+                  회원가입
+                </Link>
+              </>
           )}
         </nav>
       </div>

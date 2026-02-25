@@ -40,6 +40,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       trips: [trip],
       loading: false,
     }))
+    console.log("Fetched trip detail:", trip);
   },
 
   async addTrip(payload) {

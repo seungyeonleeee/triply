@@ -1,7 +1,6 @@
 // src/components/trips/TripCard.tsx
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Trip } from "@/types/trip";
 import { useTripsStore } from "@/store/tripsStore";
@@ -18,8 +17,12 @@ interface TripCardProps {
 }
 
 export default function TripCard({ trip }: TripCardProps) {
-  const { id, title, startDate, endDate, places } = trip;
-  const removeTrip = useTripsStore((state) => state.removeTrip);
+  const { id, title, startDate, endDate } = trip;
+  const placeCount = trip.places?.reduce(
+    (count, place) => count + (place.category === "관광명소" ? 1 : 0),
+    0
+  ) ?? 0;
+  const removeTrip = useTripsStore((state) => state.deleteTrip);
 
   const handleDelete = () => {
     removeTrip(id);
@@ -54,7 +57,7 @@ export default function TripCard({ trip }: TripCardProps) {
               <h3 className="font-semibold text-base truncate">{formattedTitle}</h3>
               <p className="text-xs text-muted-foreground mt-1">{displayDate}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {places.length}개 장소
+                {placeCount}개 도시
               </p>
             </div>
           </div>
@@ -71,9 +74,11 @@ export default function TripCard({ trip }: TripCardProps) {
             <Button
               variant="ghost"
               size="lg"
-              className="p-2 border-0 text-2xl text-gray-400 hover:text-gray-600"
+              className="has-[>svg]:px-0 border-0 text-2xl text-gray-400 hover:text-gray-600"
             >
-              ···
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+              </svg>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="p-0 min-w-none">

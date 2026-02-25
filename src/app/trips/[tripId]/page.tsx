@@ -229,7 +229,7 @@ export default function TripDetailPage() {
       <div className="space-y-3 border-b border-neutral-200 pb-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            {trip.companions && <span className="text-sm">{trip.companions}와 함께</span>}
+            {trip.companions && <span className="text-sm">{trip.companions} 함께하는</span>}
 
             <h1 className="text-2xl font-extrabold text-neutral-900">{displayTitle}</h1>
             <p className="text-sm text-neutral-500 my-1.5">{displayDate}</p>
@@ -239,15 +239,18 @@ export default function TripDetailPage() {
                 {trip.travelStyles.map((style: string, idx: number) => (
                   <span
                     key={idx}
-                    className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold"
+                    className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-semibold"
                   >
                     {style}
                   </span>
                 ))}
               </div>
             )}
-          <Button variant="outline" onClick={() => setOpenChecklist(true)} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-semibold h-auto mt-2">
-           ✔ 체크리스트
+          <Button variant="outline" onClick={() => setOpenChecklist(true)} className="gap-1 text-xs bg-gray-50 text-gray-800 px-2 py-1 rounded-full font-semibold h-auto mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+            </svg>
+            체크리스트
           </Button>
           <ChecklistDialog
             tripId={trip.id}
@@ -262,9 +265,12 @@ export default function TripDetailPage() {
               <Button
                 variant="ghost"
                 size="lg"
-                className="p-2 pt-0 border-0 text-2xl text-gray-400 hover:text-gray-600"
+                className="has-[>svg]:px-0 border-0 text-2xl text-gray-400 hover:text-gray-600"
               >
-                ···
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="p-1 min-w-20 bg-white">
