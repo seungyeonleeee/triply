@@ -47,6 +47,7 @@ export type ChecklistItem = {
   id: string;
   label: string;
   checked: boolean;
+  category?: string;
 }
 
 

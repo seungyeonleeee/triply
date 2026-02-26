@@ -43,6 +43,27 @@ async function geocodeAddress(
   })
 }
 
+// ── 여행 스타일 이모지 매핑 ────────────────────────────────────────────────
+const STYLE_EMOJI: Record<string, string> = {
+  "도시 탐방": "🏙️",
+  "자연 힐링": "🌿",
+  "맛집 투어": "🍽️",
+  "액티비티": "🎡",
+  "쇼핑": "🛍️",
+  "인생샷": "📸",
+  "문화 탐방": "🏛️",
+  "휴양": "🏖️",
+}
+
+// ── 동행자 이모지 매핑 ────────────────────────────────────────────────────
+const COMPANION_EMOJI: Record<string, string> = {
+  "혼자": "🧍",
+  "친구": "👫",
+  "연인": "💑",
+  "가족": "👨‍👩‍👧",
+  "부모님": "👴👵",
+}
+
 export default function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>()
   const router = useRouter()
@@ -59,7 +80,6 @@ export default function TripDetailPage() {
 
   React.useEffect(() => {
     if (!tripId) return
-
     setLoading(true)
     fetchTripDetail(tripId).finally(() => setLoading(false))
   }, [tripId, fetchTripDetail])
@@ -90,15 +110,24 @@ export default function TripDetailPage() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return ""
     const date = new Date(dateString)
-    return `${date.getMonth() + 1}/${date.getDate()}`
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`
   }
 
   const displayTitle = trip?.title ? `${trip.title} 여행` : "여행 제목"
-  const displayDate = trip?.startDate
-    ? trip?.endDate
-      ? `${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`
-      : `${formatDate(trip.startDate)}`
-    : "날짜 미정"
+  const displayDate =
+    trip?.startDate
+      ? trip?.endDate
+        ? `${formatDate(trip.startDate)} – ${formatDate(trip.endDate)}`
+        : formatDate(trip.startDate)
+      : "날짜 미정"
+
+  // 총 여행 일수
+  const tripDays = days.length > 0 ? `${days.length - 1}박 ${days.length}일` : null
+
+  // 총 장소 수
+  const totalPlaces = (trip?.places ?? []).filter(
+    (p: any) => p.type === "place" || p.type === "stay"
+  ).length
 
   const [openEditTrip, setOpenEditTrip] = React.useState(false)
 
@@ -126,8 +155,6 @@ export default function TripDetailPage() {
   const [editingItem, setEditingItem] = React.useState<TripItem | null>(null)
   const [openChecklist, setOpenChecklist] = React.useState(false)
 
-
-
   const resetPlaceForm = () => {
     setPlaceName("")
     setPlaceTime("")
@@ -140,7 +167,7 @@ export default function TripDetailPage() {
   }
 
   const onAddPlace = async () => {
-     console.log("🔥 onAddPlace called")
+    console.log("🔥 onAddPlace called")
     if (!trip) return
 
     let lat = coords.lat
@@ -205,12 +232,29 @@ export default function TripDetailPage() {
     setOpenAddPlace(true)
   }
 
+  // ── 로딩 ─────────────────────────────────────────────────────────────────
   if (loading) {
-    return <div className="p-4 text-sm">불러오는 중...</div>
+    return (
+      <div className="min-h-screen bg-[#F0F6FF] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full border-3 border-primary border-t-transparent animate-spin" />
+          <p className="text-sm font-medium text-gray-400">불러오는 중...</p>
+        </div>
+      </div>
+    )
   }
 
+  // ── 없는 여행 ─────────────────────────────────────────────────────────────
   if (!trip) {
-    return <div className="p-4 text-sm">여행을 찾을 수 없습니다.</div>
+    return (
+      <div className="min-h-screen bg-[#F0F6FF] flex items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-4xl mb-3">🔍</p>
+          <p className="text-base font-bold text-gray-700">여행을 찾을 수 없어요</p>
+          <p className="text-sm text-gray-400 mt-1">이미 삭제된 여행일 수 있어요.</p>
+        </div>
+      </div>
+    )
   }
 
   const normalizedPlaces: TripItem[] = (trip.places ?? []).map((p: any) => ({
@@ -224,75 +268,133 @@ export default function TripDetailPage() {
       .filter((p) => (p.day ?? 1) === day)
       .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
 
+  // ── 동행자 이모지 ──────────────────────────────────────────────────────────
+  const companionEmoji = trip.companions
+    ? (COMPANION_EMOJI[trip.companions] ?? "👤")
+    : null
+
   return (
-    <div className="size-full min-h-screen bg-neutral-50 p-4 space-y-6 pb-20 pt-6">
-      <div className="space-y-3 border-b border-neutral-200 pb-6">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            {trip.companions && <span className="text-sm">{trip.companions} 함께하는</span>}
+    <div className="w-full min-h-screen bg-[#F0F6FF] pb-24">
 
-            <h1 className="text-2xl font-extrabold text-neutral-900">{displayTitle}</h1>
-            <p className="text-sm text-neutral-500 my-1.5">{displayDate}</p>
+      {/* ── Hero Header ───────────────────────────────────────────────────── */}
+      <div className="bg-primary px-5 pt-6 pb-8 relative overflow-hidden">
+        {/* deco blobs */}
+        <div className="pointer-events-none absolute -top-10 -right-12 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.15)_0%,transparent_70%)]" />
+        <div className="pointer-events-none absolute bottom-0 left-0 w-36 h-36 rounded-full bg-[radial-gradient(circle,rgba(255,211,64,.12)_0%,transparent_70%)]" />
 
-            {trip.travelStyles && trip.travelStyles.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {trip.travelStyles.map((style: string, idx: number) => (
-                  <span
-                    key={idx}
-                    className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-semibold"
-                  >
-                    {style}
-                  </span>
-                ))}
-              </div>
-            )}
-          <Button variant="outline" onClick={() => setOpenChecklist(true)} className="gap-1 text-xs bg-gray-50 text-gray-800 px-2 py-1 rounded-full font-semibold h-auto mt-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+        {/* top row: back + menu */}
+        <div className="relative z-10 flex items-center justify-between mb-5">
+          <button
+            onClick={() => router.push("/trips")}
+            className="flex items-center gap-1.5 text-white/80 text-sm font-semibold hover:text-white transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
-            체크리스트
-          </Button>
-          <ChecklistDialog
-            tripId={trip.id}
-            open={openChecklist}
-            onOpenChange={setOpenChecklist}
-          />
-          
+            내 여행
+          </button>
+
+          <div className="flex items-center gap-1">
+            {/* 체크리스트 버튼 */}
+            <button
+              onClick={() => setOpenChecklist(true)}
+              className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 transition-colors text-white text-xs font-bold px-3 py-2.5 rounded-xl backdrop-blur"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+              </svg>
+              체크리스트
+            </button>
+
+            {/* 수정/삭제 드롭다운 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-9 h-9 p-0 rounded-xl bg-white/20 hover:bg-white/30 text-white border-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="p-1 min-w-[100px] bg-white rounded-xl shadow-xl border border-gray-100">
+                <DropdownMenuItem
+                  onClick={() => setOpenEditTrip(true)}
+                  className="justify-center rounded-lg text-sm font-semibold text-gray-700"
+                >
+                  수정하기
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="justify-center rounded-lg text-sm font-semibold text-red-500 focus:text-red-500 border-t border-gray-100 mt-0.5"
+                  onClick={onDeleteTrip}
+                >
+                  삭제하기
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* 여행 제목 & 정보 */}
+        <div className="relative z-10">
+          {trip.companions && (
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="text-base">{companionEmoji}</span>
+              <span className="text-white/80 text-sm font-medium">{trip.companions} 함께하는</span>
+            </div>
+          )}
+
+          <h1 className="text-[1.75rem] font-black text-white leading-tight tracking-tight mb-2">
+            {displayTitle}
+          </h1>
+
+          {/* 날짜 + 기간 */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <span className="flex items-center gap-1 text-white/85 text-sm font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+              </svg>
+              {displayDate}
+            </span>
+            {tripDays && (
+              <span className="bg-white/20 text-white text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur">
+                {tripDays}
+              </span>
+            )}
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="has-[>svg]:px-0 border-0 text-2xl text-gray-400 hover:text-gray-600"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                </svg>
+          {/* 여행 스타일 태그 */}
+          {trip.travelStyles && trip.travelStyles.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {trip.travelStyles.map((style: string, idx: number) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1 bg-white text-gray-700 text-[11px] font-bold px-2.5 py-1 rounded-full border border-white/20"
+                >
+                  {STYLE_EMOJI[style] ?? "✈️"} {style}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="p-1 min-w-20 bg-white">
-              <DropdownMenuItem onClick={() => setOpenEditTrip(true)} className="justify-center">
-                수정하기
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600 focus:text-red-600 border-t justify-center" onClick={onDeleteTrip}>
-                삭제하기
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <TripEditDialog
-            open={openEditTrip}
-            onOpenChange={setOpenEditTrip}
-            trip={trip}
-            onSave={onSaveTrip}
-          />
+        {/* 요약 스탯 카드들 */}
+        <div className="relative z-10 mt-5 grid grid-cols-2 gap-2.5">
+          <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl px-4 py-3">
+            <p className="text-white/70 text-[10px] font-semibold mb-0.5">총 일정</p>
+            <p className="text-white font-black text-lg">{days.length > 0 ? `${days.length}일` : "—"}</p>
+          </div>
+          <div className="bg-white/15 backdrop-blur border border-white/20 rounded-2xl px-4 py-3">
+            <p className="text-white/70 text-[10px] font-semibold mb-0.5">등록 장소</p>
+            <p className="text-white font-black text-lg">{totalPlaces > 0 ? `${totalPlaces}곳` : "—"}</p>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6">
+      {/* ── Day Sections ──────────────────────────────────────────────────── */}
+      <div className="px-4 pt-5 space-y-4">
         {days.length > 0 ? (
           days.map((dayInfo) => {
             const dayItems = itemsByDay(dayInfo.day)
@@ -340,11 +442,39 @@ export default function TripDetailPage() {
             )
           })
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>여행 날짜가 없어요. 여행 정보 수정에서 날짜를 먼저 설정해 주세요.</p>
+          /* 날짜 미설정 empty state */
+          <div className="mt-12 flex flex-col items-center text-center px-6">
+            <div className="w-16 h-16 bg-blue-50 rounded-[20px] flex items-center justify-center text-3xl mb-4">
+              📅
+            </div>
+            <p className="text-base font-extrabold text-gray-700 mb-1.5">
+              여행 날짜가 없어요
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed mb-5">
+              여행 정보 수정에서 날짜를 먼저 설정해 주세요.
+            </p>
+            <button
+              onClick={() => setOpenEditTrip(true)}
+              className="inline-flex items-center gap-2 bg-primary text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-[0_4px_14px_rgba(0,132,255,.35)] transition-transform hover:-translate-y-0.5 active:scale-[.97]"
+            >
+              ✏️ 여행 정보 수정하기
+            </button>
           </div>
         )}
       </div>
+
+      {/* Dialogs — 기능 그대로 유지 */}
+      <ChecklistDialog
+        tripId={trip.id}
+        open={openChecklist}
+        onOpenChange={setOpenChecklist}
+      />
+      <TripEditDialog
+        open={openEditTrip}
+        onOpenChange={setOpenEditTrip}
+        trip={trip}
+        onSave={onSaveTrip}
+      />
     </div>
   )
 }

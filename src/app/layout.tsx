@@ -27,7 +27,7 @@ export default function RootLayout({
             {/* Mobile App */}
             <AppFrame>
               <Header />
-              <main className="min-h-[calc(100vh-58px)] max-h-full flex items-center justify-center">
+              <main className="w-full min-h-[calc(100vh-58px)] max-h-full flex items-center justify-center">
                 {children}
               </main>
             </AppFrame>

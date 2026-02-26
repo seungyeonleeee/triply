@@ -283,3 +283,59 @@ body {
       var(--tw-shadow);
   }
 }
+
+/* Home page animations */
+  .reveal-wrap [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .reveal-wrap [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  [data-reveal][data-delay="1"] { transition-delay: .10s !important; }
+  [data-reveal][data-delay="2"] { transition-delay: .20s !important; }
+  [data-reveal][data-delay="3"] { transition-delay: .30s !important; }
+  [data-reveal][data-delay="4"] { transition-delay: .40s !important; }
+
+  /* ── Blob animations ── */
+  @keyframes blobA { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-12px,-18px) scale(1.06)} }
+  @keyframes blobB { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(14px,12px) scale(0.95)} }
+  .blob-a { animation: blobA 7s ease-in-out infinite; }
+  .blob-b { animation: blobB 9s ease-in-out infinite; }
+
+  /* ── Hero stagger ── */
+  @keyframes fadeSlide { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+  .hero-anim-0 { animation: fadeSlide .7s .10s ease both; }
+  .hero-anim-1 { animation: fadeSlide .7s .25s ease both; }
+  .hero-anim-2 { animation: fadeSlide .7s .40s ease both; }
+  .hero-anim-3 { animation: fadeSlide .7s .55s ease both; }
+  .hero-anim-4 { animation: fadeSlide .7s .70s ease both; }
+
+  /* ── Interactive states ── */
+  .chip-active {
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 4px 12px rgba(0,132,255,.3);
+  }
+  .feat-card  { transition: transform .18s, box-shadow .18s; }
+  .feat-card:hover  { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,132,255,.12); }
+  .rec-card   { transition: transform .18s, box-shadow .18s; }
+  .rec-card:hover   { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.10); }
+
+  /* ── CTA buttons ── */
+  .btn-brand {
+    background: var(--primary);
+    box-shadow: 0 8px 24px rgba(0,132,255,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-brand:hover  { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,132,255,.40); }
+  .btn-brand:active { transform: translateY(1px);  box-shadow: 0 4px 12px rgba(0,132,255,.30); }
+  .btn-outline-brand {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    transition: transform .15s, background .15s;
+  }
+  .btn-outline-brand:hover { background: #E8F3FF; transform: translateY(-1px); }

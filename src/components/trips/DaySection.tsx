@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { TimelineList, type TripItem } from "./TimelineList"
+import { TimelineList } from "./TimelineList"
+import type { TripItem } from "./TimelineList"
 
-export interface DaySectionProps {
+interface DaySectionProps {
   day: number
   dateStr: string
   items: TripItem[]
@@ -12,41 +12,47 @@ export interface DaySectionProps {
   onAddPlace: () => void
 }
 
-export function DaySection({
-  day,
-  dateStr,
-  items,
-  onItemClick,
-  onAddPlace,
-}: DaySectionProps) {
+export function DaySection({ day, dateStr, items, onItemClick, onAddPlace }: DaySectionProps) {
   return (
-    <div className="space-y-3">
-      <h2 className="text-lg font-extrabold text-neutral-900">
-        Day {day}{" "}
-        <span className="text-neutral-400 font-semibold text-sm ml-1">{dateStr}</span>
-      </h2>
+    <div className="rounded-[20px] bg-white border border-gray-100 shadow-sm overflow-hidden">
 
-      {/* Timeline list */}
-      <TimelineList
-        items={items}
-        onItemClick={onItemClick}
-      />
+      {/* ── Day Header ── */}
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          {/* Day 뱃지 */}
+          <span className="inline-flex items-center gap-1.5 bg-blue-50 text-primary text-[11px] font-bold px-3 py-1 rounded-full">
+            📅 Day {day} · {dateStr}
+          </span>
+        </div>
 
-      {/* Actions */}
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="rounded-2xl gap-1"
+        {/* 장소 추가 버튼 */}
+        <button
           onClick={onAddPlace}
+          className="flex items-center gap-1 text-[12px] font-bold text-primary hover:bg-blue-50 px-2.5 py-1.5 rounded-xl transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-
-          
+          <span className="text-[15px] leading-none font-light">+</span>
           장소 추가
-        </Button>
+        </button>
+      </div>
+
+      {/* ── Timeline ── */}
+      <div className="p-3.5">
+        <TimelineList items={items} onItemClick={onItemClick} />
+
+        {/* Empty state */}
+        {items.length === 0 && (
+          <div className="py-5 flex flex-col items-center gap-2">
+            <p className="text-[12px] text-gray-400 font-medium">아직 일정이 없어요</p>
+          </div>
+        )}
+
+        {/* 장소 추가 점선 버튼 */}
+        <button
+          onClick={onAddPlace}
+          className="mt-2 w-full border-2 border-dashed border-gray-200 rounded-2xl py-2.5 text-[12px] font-semibold text-gray-400 flex items-center justify-center gap-1.5 hover:border-primary/40 hover:text-primary transition-colors"
+        >
+          ＋ Google Maps에서 장소 추가
+        </button>
       </div>
     </div>
   )
