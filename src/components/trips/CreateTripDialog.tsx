@@ -78,10 +78,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
     }
   }, [])
 
-  const handleAddCustomCompanion = useCallback(() => {
-    if (companions.trim()) setCompanions(companions.trim())
-  }, [companions])
-
   const handleCreate = useCallback(() => {
     addTrip({
       id: crypto.randomUUID(),
@@ -228,13 +224,6 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
                     onChange={(e) => setCompanions(e.target.value)}
                     className="flex-1 bg-transparent text-[13px] text-gray-700 placeholder:text-gray-400 outline-none py-2"
                   />
-                  <button
-                    onClick={handleAddCustomCompanion}
-                    disabled={!companions.trim()}
-                    className="shrink-0 bg-primary disabled:bg-gray-200 text-white disabled:text-gray-400 text-[12px] font-bold px-3 py-1.5 rounded-xl transition-all"
-                  >
-                    확인
-                  </button>
                 </div>
               )}
             </div>
@@ -354,10 +343,14 @@ export default function CreateTripDialog({ variant = "button" }: CreateTripWizar
           ) : (
             <button
               onClick={handleNext}
-              disabled={step === "places" && title.trim() === ""}
+              disabled={
+                (step === "places" && title.trim() === "") ||
+                (step === "companions" &&
+                  (!companionType || (companionType === "기타" && companions.trim() === "")))
+              }
               className="flex-1 h-12 rounded-2xl bg-primary disabled:bg-gray-200 text-white disabled:text-gray-400 text-[15px] font-bold shadow-[0_4px_14px_rgba(0,132,255,.35)] disabled:shadow-none transition-all hover:-translate-y-0.5 active:scale-[.97]"
             >
-              다음 →
+              다음
             </button>
           )}
         </div>

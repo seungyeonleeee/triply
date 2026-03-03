@@ -51,7 +51,7 @@ export default function TripsPage() {
 
   // ── 여행 목록 ─────────────────────────────────────────────────────────────
   return (
-    <div className="w-full min-h-[calc(100vh-58px)] bg-[#F0F6FF]">
+    <div className="w-full min-h-[calc(100vh-57px)] bg-[#F0F6FF]">
 
       {/* ── Hero 헤더 ── */}
       <div className="bg-primary px-5 pt-8 pb-10 relative overflow-hidden">

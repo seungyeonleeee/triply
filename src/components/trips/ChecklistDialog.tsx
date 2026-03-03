@@ -99,22 +99,17 @@ export function ChecklistDialog({ tripId, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-[24px] border-0 shadow-[0_24px_60px_rgba(0,0,0,.18)] p-0 md:gap-0">
+      <DialogContent className="sm:max-w-md rounded-3xl border-0 shadow-[0_24px_60px_rgba(0,0,0,.18)] p-0 md:gap-0 gap-2 max-h-[90vh] overflow-y-scroll">
 
         {/* ── 헤더 ── */}
-        <DialogHeader className="px-5 pt-5 pb-5">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 bg-blue-50 rounded-[12px] flex items-center justify-center text-xl shrink-0">
-              ✅
-            </div>
-            <div>
+        <DialogHeader className="px-5 pt-5 pb-2">
+          <div className="flex flex-col justify-center items-center gap-3 mb-1">
               <DialogTitle className="text-[17px] font-black text-gray-900 leading-tight">
                 체크리스트
               </DialogTitle>
               <DialogDescription className="text-[12px] text-gray-400 mt-0.5">
                 여행 준비물을 잊지 않도록 추가해보세요!
               </DialogDescription>
-            </div>
           </div>
 
           {/* 진행률 */}
@@ -137,7 +132,7 @@ export function ChecklistDialog({ tripId, open, onOpenChange }: Props) {
         <div className="h-px bg-gray-100 mx-5" />
 
         {/* ── 아이템 목록 ── */}
-        <div className="px-5 py-3 max-h-[42vh] overflow-y-auto">
+        <div className="px-5 max-h-[42vh] overflow-y-auto">
           {total === 0 ? (
             <div className="py-8 flex flex-col items-center gap-2 text-center">
               <span className="text-3xl">📋</span>
@@ -207,7 +202,7 @@ export function ChecklistDialog({ tripId, open, onOpenChange }: Props) {
         <div className="h-px bg-gray-100 mx-5" />
 
         {/* ── 하단 추가 영역 ── */}
-        <div className="p-5 space-y-3">
+        <div className="px-5 py-4 space-y-3">
 
           {/* 카테고리 선택 칩 */}
           <div>

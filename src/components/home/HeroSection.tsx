@@ -48,8 +48,8 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
         </span>
 
         <h1 className="hero-anim-1 text-[2rem] font-black leading-[1.2] tracking-tight text-gray-900">
-          내 취향대로<br />
-          <span className="text-primary">완벽한 여행</span><br />
+          내 취향대로
+          <span className="text-primary"> 완벽한 여행</span><br />
           한 번에 계획해요
         </h1>
 
