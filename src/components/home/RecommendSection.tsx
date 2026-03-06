@@ -119,10 +119,10 @@ export function RecommendSection({ isLoggedIn }: RecommendSectionProps) {
       {/* CTA */}
       <div className="px-6 mt-5">
         <Link
-          href={isLoggedIn ? "/trips" : "/signup"}
+          href={isLoggedIn ? "/recommend" : "/login"}
           className="btn-brand w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-primary text-white font-bold text-[15px]"
         >
-          ✨ 내 취향 일정 추천받기
+          내 취향 일정 추천받기
         </Link>
       </div>
     </section>

@@ -30,16 +30,16 @@ export default function HomePage() {
   const isLoggedIn = !!user
 
   return (
-      <div className="reveal-wrap">
+      <div className="reveal-wrap w-full">
         <HeroSection isLoggedIn={isLoggedIn} />
         <FeaturesSection />
         <MapSection />
         <RecommendSection isLoggedIn={isLoggedIn} />
         <ChecklistSection />
-        <CtaSection />
+        <CtaSection isLoggedIn={isLoggedIn} />
 
         {/* Footer */}
-        <footer className="bg-gray-900 px-6 py-6 text-center">
+        <footer className="bg-gray-900 px-6 pt-6 pb-10 text-center">
           <div className="flex items-center justify-center">
             <Image
               src="/images/logo.png"

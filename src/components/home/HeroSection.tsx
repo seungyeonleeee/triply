@@ -60,10 +60,10 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
 
         <div className="hero-anim-3 mt-7 flex gap-2.5 justify-center">
           <Link
-            href={isLoggedIn ? "/trips" : "/signup"}
+            href={isLoggedIn ? "/trips" : "/login"}
             className="btn-brand inline-flex items-center gap-1.5 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[15px]"
           >
-            ✈️ {isLoggedIn ? "내 여행 보기" : "일정 만들기"}
+            {isLoggedIn ? "내 여행 보기" : "일정 만들기"}
           </Link>
 
         </div>
@@ -93,7 +93,7 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex bg-gray-50 border-b border-gray-100 text-xs font-semibold">
+          {/* <div className="flex bg-gray-50 border-b border-gray-100 text-xs font-semibold">
             {["일정", "지도", "체크리스트", "메모"].map((t, i) => (
               <div
                 key={t}
@@ -104,7 +104,7 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
                 {t}
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Body */}
           <div className="p-3.5">

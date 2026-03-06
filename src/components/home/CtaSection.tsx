@@ -20,7 +20,7 @@ const PERKS = [
   },
 ] as const
 
-export function CtaSection() {
+export function CtaSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <section className="px-6 py-20 bg-gradient-to-br from-[#0060CC] via-primary to-[#3FA0FF] relative overflow-hidden text-center">
       {/* Deco blobs */}
@@ -54,10 +54,10 @@ export function CtaSection() {
         </div>
 
         <Link
-          href="/signup"
+          href={isLoggedIn ? "/trips" : "/signup"}
           className="block w-full bg-white text-primary font-extrabold text-[16px] py-4 rounded-[16px] shadow-[0_8px_24px_rgba(0,0,0,.2)] mb-3 transition-transform hover:-translate-y-0.5 active:scale-[.98]"
         >
-          🎉 무료로 시작하기
+          무료로 시작하기
         </Link>
         <p className="text-[13px] text-white/65">
           이미 계정이 있으신가요?{" "}

@@ -26,9 +26,9 @@ export default function TripsPage() {
   // ── Empty state ───────────────────────────────────────────────────────────
   if (trips.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-56px)] bg-gradient-to-b from-[#E8F3FF] to-white flex flex-col">
+      <div className="min-h-[calc(100vh-57px)] w-full flex flex-col">
         {/* 상단 헤더 영역 */}
-        <div className="bg-gradient-to-br from-primary to-[#3FA0FF] px-5 pt-8 pb-10 relative overflow-hidden">
+        <div className="bg-primary px-5 pt-8 pb-10 relative overflow-hidden">
           <div className="pointer-events-none absolute -top-10 -right-12 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.15)_0%,transparent_70%)]" />
           <div className="pointer-events-none absolute bottom-0 left-0 w-36 h-36 rounded-full bg-[radial-gradient(circle,rgba(255,211,64,.12)_0%,transparent_70%)]" />
           <div className="relative z-10">
@@ -40,8 +40,8 @@ export default function TripsPage() {
         </div>
 
         {/* TripsEmpty 컴포넌트 */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-4">
-          <div className="w-full bg-white rounded-[24px] shadow-[0_8px_32px_rgba(0,80,200,.12)] border border-blue-50 overflow-hidden">
+        <div className="px-6">
+          <div className="w-full mt-20 bg-white">
             <TripsEmpty />
           </div>
         </div>

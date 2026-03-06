@@ -1,6 +1,3 @@
-// src/components/auth/AuthField.tsx
-// label + input 연결된 공통 필드 컴포넌트
-
 interface AuthFieldProps {
   id: string
   label: string

@@ -54,9 +54,9 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-sm font-medium text-primary"
+                  className="text-sm font-medium bg-primary text-white py-1.5 px-3 rounded-4xl"
                 >
-                  회원가입
+                  무료로 시작하기
                 </Link>
               </>
           )}
